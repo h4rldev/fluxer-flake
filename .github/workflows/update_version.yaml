@@ -1,0 +1,43 @@
+name: Update Fluxer Canary version
+
+on:
+  schedule:
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Install curl & jq
+        run: |
+          nix profile add nixpkgs#curl
+          nix profile add nixpkgs#jq
+
+      - name: Make script executable
+        run: chmod +x ./get_latest_fluxer.sh
+
+      - name: Run update script
+        run: |
+          ./get_latest_fluxer.sh
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add fluxer_version.json
+            git commit -m "chore: update Ryubing version to $(cat fluxer_version.json | jq -r .version)"
+            git push origin HEAD:${{ github.ref }}
+          else
+            echo "No changes to commit"
+          fi
