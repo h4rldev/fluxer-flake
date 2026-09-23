@@ -1,6 +1,6 @@
 #/usr/bin/env bash
 
-FLUXER_API_URL="https://api.fluxer.app/dl/desktop/canary/linux/x64/latest"
+FLUXER_API_URL="https://pkgs.fluxer.com/desktop/canary/linux/x64/latest.json"
 
 if ! command -v curl >/dev/null; then
   echo -e "Curl is not installed. Please install curl and try again."
